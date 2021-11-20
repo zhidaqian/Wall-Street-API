@@ -1,0 +1,45 @@
+import requests
+
+url = "https://wallstreetbets.p.rapidapi.com/"
+
+querystring = {"date":"today"}
+
+headers = {
+    'x-rapidapi-host': "wallstreetbets.p.rapidapi.com",
+    'x-rapidapi-key': "YOUR-API-KEY"
+    }
+
+response = requests.request("GET", url, headers=headers, params=querystring)
+
+print(response.text)
+
+import json 
+
+response_data = json.loads(response.text)
+response_data
+
+import pandas as pd
+df = pd.json_normalize(response_data["wsb_stocks"])
+
+df
+
+# convert just columns to integer format
+df[["mentions", "comments", "votes"]] = df[["mentions", "comments", "votes"]].apply(pd.to_numeric)
+
+df.info()
+
+import matplotlib.pyplot as plt
+df.sort_values(by="mentions", ascending=False, inplace=True)
+plt.bar(df["ticker"], df["mentions"])
+plt.xticks(rotation=45)
+plt.show()
+
+df.sort_values(by="comments", ascending=False, inplace=True)
+plt.bar(df["ticker"], df["comments"])
+plt.xticks(rotation=45)
+plt.show()
+
+df.sort_values(by="votes", ascending=False, inplace=True)
+plt.bar(df["ticker"], df["votes"])
+plt.xticks(rotation=45)
+plt.show()
